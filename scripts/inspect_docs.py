@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
 """Inspect actual document structures for forensic accuracy."""
-import asyncio, json
+import asyncio, json, os
+from pathlib import Path
 from motor.motor_asyncio import AsyncIOMotorClient
 
-db = AsyncIOMotorClient("mongodb://localhost:27017")["aurora_fnb"]
+# Read MONGO_URL + DB_NAME from backend/.env (NEVER hardcode DB — RC-1 / guardrails §10).
+_env = Path("/app/backend/.env")
+if _env.exists():
+    for _ln in _env.read_text().splitlines():
+        _ln = _ln.strip()
+        if _ln and not _ln.startswith("#") and "=" in _ln:
+            _k, _v = _ln.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+
+db = AsyncIOMotorClient(os.environ.get("MONGO_URL", "mongodb://localhost:27017"))[
+    os.environ.get("DB_NAME", "test_database")
+]
 
 
 def show(label, doc):

@@ -2,13 +2,25 @@
 """Comprehensive collection-drift scanner.
 For every db.<collection> read reference in services+routers, flag collections
 that are EMPTY in the live DB (potential RC-1 drift / dead reads)."""
-import asyncio, re
+import asyncio, os, re
 from pathlib import Path
 from collections import defaultdict
 from motor.motor_asyncio import AsyncIOMotorClient
 
 BACKEND = Path("/app/backend")
-db = AsyncIOMotorClient("mongodb://localhost:27017")["aurora_fnb"]
+
+# Read MONGO_URL + DB_NAME from backend/.env (NEVER hardcode DB — RC-1 / guardrails §10).
+_env = BACKEND / ".env"
+if _env.exists():
+    for _ln in _env.read_text().splitlines():
+        _ln = _ln.strip()
+        if _ln and not _ln.startswith("#") and "=" in _ln:
+            _k, _v = _ln.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+
+_MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+_DB_NAME = os.environ.get("DB_NAME", "test_database")
+db = AsyncIOMotorClient(_MONGO_URL)[_DB_NAME]
 
 PAT = re.compile(r'db\.([a-z][a-z0-9_]*)\s*\.\s*(find|find_one|aggregate|count_documents|distinct|update_one|update_many|insert_one|insert_many|delete_one|delete_many)')
 IGNORE = {"command", "client", "name"}

@@ -1,30 +1,38 @@
 [
   {
-    "content": "Verify last commit + read GROUND_TRUTH PART L (tour & guide update)",
+    "content": "Phase 1: Backend SSOT gates (integrity 21/21, health OK, intent 25/25 + 21/21, verify_contract OK)",
     "status": "completed"
   },
   {
-    "content": "Validate tour static audits (audit_tours.py + audit_tours_v2.py) — 0 missing/drift",
+    "content": "Phase 2: Backend regression pytest — 233 passed, 11 skipped",
     "status": "completed"
   },
   {
-    "content": "Browser-validate tour flows end-to-end via testing agent (10/11 pass)",
+    "content": "Phase 3: All audit scripts GREEN. FIXED 2 wrong-DB script bugs. 3 detail-404 verified false-positive",
     "status": "completed"
   },
   {
-    "content": "Fix bug: /executive renders OwnerHome but executive-home tour targeted ExecutiveHome testids → created executive-owner-home tour",
+    "content": "Phase 4: e2e_smoke.sh — 0 5xx, 16/16 E2E pass (P2P/inventory/payment/GL balanced)",
     "status": "completed"
   },
   {
-    "content": "Fix latent drift: /executive/outlet/:outletId + /executive/brand/:brandId tours → created drilldown tours",
+    "content": "Phase 5: RBAC verified — permission matrix 25/25 + outlet read/write scope enforced",
     "status": "completed"
   },
   {
-    "content": "Re-validate all 3 fixed tours in browser (owner-home 5 steps, outlet/brand drilldown 4 steps)",
+    "content": "Phase 6: Data-management/restore (export/import/preview, SUPER_ADMIN-only) + system-settings FE↔BE verified",
     "status": "completed"
   },
   {
-    "content": "Run final gates (ux_audit, audit_all, tour audits) + update memory (GROUND_TRUTH PART N + plan.md)",
-    "status": "completed"
+    "content": "Phase 7: Frontend comprehensive E2E via testing agent (all portals, RBAC nav, CRUD flows, tours, data-mgmt UI)",
+    "status": "in_progress"
+  },
+  {
+    "content": "Phase 8: Deployment readiness audit (deployment_agent)",
+    "status": "pending"
+  },
+  {
+    "content": "Phase 9: Fix ALL issues found + re-verify until 0 bugs",
+    "status": "pending"
   }
 ]
