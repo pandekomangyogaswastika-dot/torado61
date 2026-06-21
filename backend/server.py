@@ -116,9 +116,12 @@ app.add_middleware(
     ],
 )
 # Configure rate limit buckets from env (override defaults)
-rate_limiter.configure("login",       limit=int(os.environ.get("RATE_LIMIT_LOGIN", "10")),       window_sec=60)
-rate_limiter.configure("ai",          limit=int(os.environ.get("RATE_LIMIT_AI", "20")),          window_sec=60)
-rate_limiter.configure("api",         limit=int(os.environ.get("RATE_LIMIT_API", "120")),        window_sec=60)
+# api: 1000/60s/user — a dashboard-heavy SPA fires many calls per page (KPIs, charts,
+#   notification/approval polling) + fast navigation; 120 caused false 429s. login: 30/60s/IP
+#   keeps brute-force protection while allowing shift-start logins from a shared outlet IP.
+rate_limiter.configure("login",       limit=int(os.environ.get("RATE_LIMIT_LOGIN", "30")),       window_sec=60)
+rate_limiter.configure("ai",          limit=int(os.environ.get("RATE_LIMIT_AI", "30")),          window_sec=60)
+rate_limiter.configure("api",         limit=int(os.environ.get("RATE_LIMIT_API", "1000")),       window_sec=60)
 rate_limiter.configure("public_form", limit=int(os.environ.get("RATE_LIMIT_PUBLIC_FORM", "5")),  window_sec=60)
 
 if os.environ.get("RATE_LIMIT_ENABLED", "true").lower() == "true":

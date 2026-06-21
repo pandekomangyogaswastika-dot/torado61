@@ -59,10 +59,30 @@ import ReportSchedules from "./ReportSchedules";
 import DataManagement from "./DataManagement";
 import TourAnalytics from "./TourAnalytics";
 
+/**
+ * Defense-in-depth per-route guard. The /admin/* portal guard (App.js) only checks
+ * for ANY `admin.*` perm, so a role with a feature perm like `admin.loyalty.*`
+ * (e.g. OUTLET_MANAGER) can enter the admin shell. This guards each sensitive
+ * sub-route by its specific permission namespace (aligned with navigationSchema
+ * reqPerm), redirecting unauthorized direct-URL access to /no-access.
+ * SUPER_ADMIN ("*") always passes.
+ */
+function permitted(user, needPrefix) {
+  const perms = (user && user.permissions) || [];
+  if (perms.includes("*")) return true;
+  return perms.some((p) => p === needPrefix || p.startsWith(needPrefix + "."));
+}
+
+function Gate({ user, need, children }) {
+  if (!permitted(user, need)) return <Navigate to="/no-access" replace />;
+  return children;
+}
+
 export default function AdminPortal() {
   const { user } = useAuth();
   const location = useLocation();
   if (!user) return null;
+  const g = (need, el) => <Gate user={user} need={need}>{el}</Gate>;
 
   // Phase 2: the "Admin Platform" hero is shown ONLY on the Admin home (/admin).
   // Sub-pages have their own headers, so the repeated hero is removed for density.
@@ -79,15 +99,15 @@ export default function AdminPortal() {
       )}
       <Routes>
         <Route index element={<AdminHome />} />
-        <Route path="users" element={<Users />} />
-        <Route path="roles" element={<Roles />} />
+        <Route path="users" element={g("admin.user", <Users />)} />
+        <Route path="roles" element={g("admin.user", <Roles />)} />
         {/* Unified hubs (IA consolidation) */}
-        <Route path="user-management" element={<UserManagementHub />} />
-        <Route path="setup" element={<AdminSetupHub />} />
+        <Route path="user-management" element={g("admin.user", <UserManagementHub />)} />
+        <Route path="setup" element={g("admin.business_rules", <AdminSetupHub />)} />
         <Route path="master" element={<Navigate to="/admin/master/items" replace />} />
         <Route path="master-data" element={<Navigate to="/admin/master/items" replace />} />
-        <Route path="master/:entity" element={<MasterDataHub />} />
-        <Route path="configuration" element={<ConfigurationLayout />}>
+        <Route path="master/:entity" element={g("admin.master_data", <MasterDataHub />)} />
+        <Route path="configuration" element={g("admin.business_rules", <ConfigurationLayout />)}>
           <Route index element={<Navigate to="/admin/configuration/sales-schemas" replace />} />
           <Route path="sales-schemas" element={<SalesSchemasPage />} />
           <Route path="petty-cash-policies" element={<PettyCashPoliciesPage />} />
@@ -96,49 +116,49 @@ export default function AdminPortal() {
           <Route path="anomaly-thresholds" element={<AnomalyThresholdsPage />} />
           <Route path="effective-dating" element={<EffectiveDatingTimelinePage />} />
         </Route>
-        <Route path="workflows" element={<ApprovalWorkflows />} />
+        <Route path="workflows" element={g("admin.business_rules", <ApprovalWorkflows />)} />
         {/* Phase 15 — global visual workflow builder */}
-        <Route path="approvals" element={<ApprovalMatrixBuilder />} />
+        <Route path="approvals" element={g("admin.business_rules", <ApprovalMatrixBuilder />)} />
         {/* Sprint D — Bulk Excel Import */}
-        <Route path="bulk-import" element={<BulkImport />} />
-        <Route path="number-series" element={<NumberSeries />} />
-        <Route path="audit-log" element={<AuditLog />} />
-        <Route path="integrations" element={<Integrations />} />
-        <Route path="integrations/:tab" element={<Integrations />} />
-        <Route path="tax" element={<TaxConfig />} />
-        <Route path="operations/*" element={<Operations />} />
+        <Route path="bulk-import" element={g("admin.business_rules", <BulkImport />)} />
+        <Route path="number-series" element={g("admin.business_rules", <NumberSeries />)} />
+        <Route path="audit-log" element={g("admin.audit_log", <AuditLog />)} />
+        <Route path="integrations" element={g("admin.business_rules", <Integrations />)} />
+        <Route path="integrations/:tab" element={g("admin.business_rules", <Integrations />)} />
+        <Route path="tax" element={g("admin.business_rules", <TaxConfig />)} />
+        <Route path="operations/*" element={g("admin.audit_log", <Operations />)} />
 
         {/* System Settings (real page, not Coming Soon) */}
-        <Route path="settings" element={<SystemSettings />} />
+        <Route path="settings" element={g("admin.system_settings", <SystemSettings />)} />
 
         {/* Loyalty admin — unified hub (Overview/Customers/Rewards/Redemptions/Analytics tabs) */}
-        <Route path="loyalty" element={<LoyaltyHub />} />
-        <Route path="loyalty/customers" element={<LoyaltyAdminCustomers />} />
-        <Route path="loyalty/customers/:customerId" element={<LoyaltyAdminCustomerDetail />} />
-        <Route path="loyalty/rewards" element={<LoyaltyAdminRewards />} />
-        <Route path="loyalty/redemptions" element={<LoyaltyAdminRedemptions />} />
-        <Route path="loyalty/analytics" element={<CRMAnalytics />} />
+        <Route path="loyalty" element={g("admin.loyalty", <LoyaltyHub />)} />
+        <Route path="loyalty/customers" element={g("admin.loyalty", <LoyaltyAdminCustomers />)} />
+        <Route path="loyalty/customers/:customerId" element={g("admin.loyalty", <LoyaltyAdminCustomerDetail />)} />
+        <Route path="loyalty/rewards" element={g("admin.loyalty", <LoyaltyAdminRewards />)} />
+        <Route path="loyalty/redemptions" element={g("admin.loyalty", <LoyaltyAdminRedemptions />)} />
+        <Route path="loyalty/analytics" element={g("admin.loyalty", <CRMAnalytics />)} />
 
         {/* Sprint D: CMS routes - all use CMSStudio wrapper for unified tabs */}
         <Route path="cms-studio" element={<Navigate to="/admin/cms/brands" replace />} />
-        <Route path="cms/brands" element={<CMSStudio />} />
-        <Route path="cms/outlets" element={<CMSStudio />} />
-        <Route path="cms/news" element={<CMSStudio />} />
-        <Route path="cms/menu" element={<CMSStudio />} />
-        <Route path="cms/careers" element={<CMSStudio />} />
-        <Route path="cms/media" element={<CMSStudio />} />
+        <Route path="cms/brands" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/outlets" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/news" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/menu" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/careers" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/media" element={g("admin.cms", <CMSStudio />)} />
         {/* Sprint I-L: Reviews + Analytics + Page Builder */}
-        <Route path="cms/reviews" element={<CMSStudio />} />
-        <Route path="cms/analytics" element={<CMSStudio />} />
-        <Route path="cms/pages" element={<CMSStudio />} />
+        <Route path="cms/reviews" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/analytics" element={g("admin.cms", <CMSStudio />)} />
+        <Route path="cms/pages" element={g("admin.cms", <CMSStudio />)} />
         {/* Sprint E: Scheduled Reports */}
-        <Route path="report-schedules" element={<ReportSchedules />} />
+        <Route path="report-schedules" element={g("admin.audit_log", <ReportSchedules />)} />
         {/* Phase 2: Smart SEO Optimization */}
-        <Route path="smart-seo" element={<SmartSEO />} />
+        <Route path="smart-seo" element={g("admin.cms", <SmartSEO />)} />
         {/* Data Management: Import / Export / Delete */}
-        <Route path="data-management" element={<DataManagement />} />
+        <Route path="data-management" element={g("admin.audit_log", <DataManagement />)} />
         {/* Tour Analytics — Help & Tour usage statistics */}
-        <Route path="tour-analytics" element={<TourAnalytics />} />
+        <Route path="tour-analytics" element={g("admin.audit_log", <TourAnalytics />)} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </div>

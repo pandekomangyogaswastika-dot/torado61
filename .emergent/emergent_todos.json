@@ -12,7 +12,7 @@
     "status": "completed"
   },
   {
-    "content": "Phase 4: e2e_smoke.sh — 0 5xx, 16/16 E2E pass (P2P/inventory/payment/GL balanced)",
+    "content": "Phase 4: e2e_smoke.sh — 0 5xx, 16/16 E2E pass",
     "status": "completed"
   },
   {
@@ -20,11 +20,15 @@
     "status": "completed"
   },
   {
-    "content": "Phase 6: Data-management/restore (export/import/preview, SUPER_ADMIN-only) + system-settings FE↔BE verified",
+    "content": "Phase 6: Data-management/restore + system-settings FE↔BE verified",
     "status": "completed"
   },
   {
-    "content": "Phase 7: Frontend comprehensive E2E via testing agent (all portals, RBAC nav, CRUD flows, tours, data-mgmt UI)",
+    "content": "Phase 7: Frontend E2E (testing agent) — FOUND + FIXED: (a) CRITICAL RBAC portal-route leak (per-route guards added in AdminPortal), (b) rate-limit 120→1000/min. Both verified in browser. Gates re-passed",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 7b: Re-run testing agent to confirm RBAC fix + cover tours/PR-form/reports",
     "status": "in_progress"
   },
   {
@@ -32,7 +36,7 @@
     "status": "pending"
   },
   {
-    "content": "Phase 9: Fix ALL issues found + re-verify until 0 bugs",
+    "content": "Phase 9: Update memory (GROUND_TRUTH PART O) + final summary",
     "status": "pending"
   }
 ]
