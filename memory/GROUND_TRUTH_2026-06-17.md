@@ -487,3 +487,34 @@ bukan hanya tour). Dijalankan 8 fase + banyak metode. Hasil: **siap deploy** set
 > File disentuh: server.py (rate limit), AdminPortal.jsx (route guards), LoyaltyAuthContext.js, .gitignore,
 > scripts/audit_collection_drift.py, scripts/inspect_docs.py, + scripts/rbac_forensic_test.py (baru, alat uji).
 > Pasca semua fix: pytest 233, integrity 21/21, intent 25/25+21/21, tours 0-missing, RBAC 25/25, deploy PASS.
+
+---
+
+## PART P — IDOR Leave (P0) + Forensic harness berfase (sesi production-hardening)
+
+### Fix P0 — IDOR data cuti (PII):
+- `routers/leave.py`: endpoint `GET /api/hr/leaves/summary/{employee_id}` & `GET /api/hr/leaves/{leave_id}`
+  sebelumnya hanya `current_user` (tanpa cek kepemilikan) → user mana pun bisa baca cuti karyawan lain.
+- Tambah helper `_assert_can_view_employee_leave(user, employee_id)`: izinkan hanya jika
+  `employee_id == user["id"]` ATAU `*` ATAU salah satu dari `hr.leave.approve|hr.leave.read|hr.employee.read`,
+  selain itu `403 LEAVE_OWNERSHIP_REQUIRED`. Diterapkan ke summary + detail (detail pakai `employee_id` dari doc).
+- Verifikasi: owner→200, cross-user→403, super→200, missing→404, no-token→401.
+  Testing agent: 15/15 PASS (iteration_8.json). Live probe & pytest leave hijau.
+
+### Alat baru (untuk konsistensi agent berikutnya):
+- `scripts/forensic_master_suite.sh` — 1 perintah, 6 gate (endpoint-guard, portal-leak, RBAC live,
+  IDOR probe, tour drift, pytest). Hasil sesi ini: **6/6 PASS**.
+- `scripts/idor_ownership_probe.py` — probe IDOR cross-user data-driven (extensible CASES).
+- `backend/idor_leave_security_test.py` — suite IDOR+regresi cuti (oleh testing agent).
+- `memory/FORENSIC_TEST_PLAYBOOK.md` — prosedur baku (cara extend RBAC/IDOR/tours, leak-map, deploy gate).
+- `memory/PRODUCTION_READINESS_PHASED_REPORT.md` — rencana berfase PHASE 1–5 + Go/No-Go.
+
+### Sisa kerja (berfase, P1 kecuali disebut): 
+- PHASE 1 (P0/P1): sweep 59 endpoint auth-only via idor_ownership_probe (approvals/admin business-rules/daily_close).
+- PHASE 2 (P1): route-guard `Gate` di 7 portal non-admin (pola dari AdminPortal.jsx) + browser URL-tamper test.
+- PHASE 3 (P1): validasi render ~98 tour di browser (static drift sudah 0).
+- PHASE 4 (P0): E2E WRITE flows (approval, period close, payment run, inventory transfer).
+- PHASE 5 (P1): forensic_master_suite hijau → deployment_agent.
+
+> File disentuh sesi ini: routers/leave.py (fix IDOR) + 4 file alat/doc baru di scripts/ & memory/.
+> Baseline pasca-fix: pytest 233 pass/11 skip, RBAC live 25/25, tour drift 0, IDOR probe 0 leak, master-suite 6/6.

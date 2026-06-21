@@ -12,15 +12,15 @@
     "status": "completed"
   },
   {
-    "content": "Backend testing agent: verifikasi fix IDOR + regresi leave endpoints",
-    "status": "in_progress"
+    "content": "Backend testing agent: verifikasi fix IDOR + regresi leave endpoints (15/15 PASS)",
+    "status": "completed"
   },
   {
-    "content": "Buat report berfase (PHASE 1-N) untuk sisa pekerjaan deploy-readiness",
-    "status": "pending"
+    "content": "Buat report berfase (PHASE 1-5) untuk sisa pekerjaan deploy-readiness",
+    "status": "completed"
   },
   {
-    "content": "Buat script playbook testing komprehensif untuk agent berikutnya (konsistensi)",
-    "status": "pending"
+    "content": "Buat script playbook testing komprehensif untuk agent berikutnya (orchestrator + IDOR probe + playbook MD)",
+    "status": "completed"
   }
 ]
