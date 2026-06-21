@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from core.db import get_db
 from core.exceptions import ok_envelope
-from core.security import current_user
+from core.security import current_user, require_perm
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/seo", tags=["seo"])
@@ -111,14 +111,14 @@ async def get_public_seo(path: str = Query(...)):
 # ─── Admin CRUD ─────────────────────────────────────────────────────────────────
 
 @router.get("/pages")
-async def list_seo_pages(user=Depends(current_user)):
+async def list_seo_pages(user=Depends(require_perm("admin.cms.read"))):
     db = get_db()
     cursor = db.seo_settings.find({"deleted_at": None}, {"_id": 0}).sort("path", 1)
     docs = [_serialize(d) async for d in cursor]
     return ok_envelope(docs, meta={"total": len(docs)})
 
 @router.post("/pages")
-async def upsert_seo_page(body: SeoPageIn, user=Depends(current_user)):
+async def upsert_seo_page(body: SeoPageIn, user=Depends(require_perm("admin.cms.write"))):
     db = get_db()
     now = _now()
     # Upsert by path
@@ -146,7 +146,7 @@ async def upsert_seo_page(body: SeoPageIn, user=Depends(current_user)):
         return ok_envelope(_serialize(doc))
 
 @router.put("/pages/{seo_id}")
-async def update_seo_page(seo_id: str, body: SeoPageIn, user=Depends(current_user)):
+async def update_seo_page(seo_id: str, body: SeoPageIn, user=Depends(require_perm("admin.cms.write"))):
     db = get_db()
     now = _now()
     existing = await db.seo_settings.find_one({"id": seo_id, "deleted_at": None})
@@ -157,7 +157,7 @@ async def update_seo_page(seo_id: str, body: SeoPageIn, user=Depends(current_use
     return ok_envelope(_serialize({**existing, **payload}))
 
 @router.delete("/pages/{seo_id}")
-async def delete_seo_page(seo_id: str, user=Depends(current_user)):
+async def delete_seo_page(seo_id: str, user=Depends(require_perm("admin.cms.write"))):
     db = get_db()
     now = _now()
     existing = await db.seo_settings.find_one({"id": seo_id, "deleted_at": None})
@@ -193,7 +193,7 @@ async def _get_llm_client():
         return None
 
 @router.post("/ai/analyze")
-async def ai_analyze_keywords(body: AiAnalyzeIn, user=Depends(current_user)):
+async def ai_analyze_keywords(body: AiAnalyzeIn, user=Depends(require_perm("admin.cms.write"))):
     """
     AI keyword analysis: input keywords → search intent + keyword clusters + quick suggestions.
     Falls back to rule-based analysis if EMERGENT_LLM_KEY not configured.
@@ -248,7 +248,7 @@ Kembalikan JSON saja (no markdown):
         return ok_envelope(_fallback_analysis(body), meta={"ai_powered": False, "message": f"AI error: {str(e)}"})
 
 @router.post("/ai/generate")
-async def ai_generate_seo(body: AiGenerateIn, user=Depends(current_user)):
+async def ai_generate_seo(body: AiGenerateIn, user=Depends(require_perm("admin.cms.write"))):
     """
     AI SEO content generation: keywords + intent → title/description/OG content + JSON-LD outline.
     Falls back to template-based generation if key not configured.

@@ -1,38 +1,26 @@
 [
   {
-    "content": "Phase 1: Backend SSOT gates (integrity 21/21, health OK, intent 25/25 + 21/21, verify_contract OK)",
+    "content": "Fix IDOR P0 di routers/leave.py (summary/{employee_id} & GET /{leave_id}) - tambah ownership + HR perm check",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Backend regression pytest — 233 passed, 11 skipped",
+    "content": "Verifikasi fix IDOR via curl/python (owner access OK, cross-user 403, HR access OK)",
     "status": "completed"
   },
   {
-    "content": "Phase 3: All audit scripts GREEN. FIXED 2 wrong-DB script bugs. 3 detail-404 verified false-positive",
+    "content": "Audit pattern RBAC guard di AdminPortal.jsx & inventaris semua *Portal.jsx untuk report fase berikutnya",
     "status": "completed"
   },
   {
-    "content": "Phase 4: e2e_smoke.sh — 0 5xx, 16/16 E2E pass",
-    "status": "completed"
+    "content": "Backend testing agent: verifikasi fix IDOR + regresi leave endpoints",
+    "status": "in_progress"
   },
   {
-    "content": "Phase 5: RBAC verified — permission matrix 25/25 + outlet read/write scope enforced",
-    "status": "completed"
+    "content": "Buat report berfase (PHASE 1-N) untuk sisa pekerjaan deploy-readiness",
+    "status": "pending"
   },
   {
-    "content": "Phase 6: Data-management/restore + system-settings FE↔BE verified",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 7: Frontend E2E — FIXED critical RBAC portal-route leak + rate-limit 120→1000. Re-verified (testing agent iter_7: 100%)",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 8: Deployment readiness — deployment_agent PASS (fixed .gitignore .env + loyalty API fallback)",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 9: Memory updated (GROUND_TRUTH PART O + plan.md) + final summary",
-    "status": "completed"
+    "content": "Buat script playbook testing komprehensif untuk agent berikutnya (konsistensi)",
+    "status": "pending"
   }
 ]

@@ -14,7 +14,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 
 from core.exceptions import ok_envelope
-from core.security import current_user, require_perm
+from core.security import current_user, require_perm, require_any_perm
 from models.tax import PPH21_BRACKETS, PPH23_SERVICE_TYPES, PPH42_SERVICE_TYPES, PPH_TYPES
 from services import tax_service
 from services.system_settings_service import set_value
@@ -106,7 +106,7 @@ async def list_withholding(
     wh_type: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=1, le=200),
-    user: dict = Depends(current_user),
+    user: dict = Depends(require_any_perm("finance.tax.manage", "finance.report.profit_loss", "system.settings.manage")),
 ):
     items, meta = await tax_service.list_withholding(
         period=period, wh_type=wh_type, page=page, per_page=per_page,
@@ -117,7 +117,7 @@ async def list_withholding(
 @router.get("/withholding/summary")
 async def withholding_summary(
     year: Optional[str] = Query(None),
-    user: dict = Depends(current_user),
+    user: dict = Depends(require_any_perm("finance.tax.manage", "finance.report.profit_loss", "system.settings.manage")),
 ):
     result = await tax_service.withholding_summary(year=year)
     return ok_envelope(result)
@@ -148,7 +148,7 @@ async def pph21_brackets(user: dict = Depends(current_user)):
 @router.get("/pph21/spt-export")
 async def export_pph21_spt(
     period: str = Query(..., description="YYYY-MM"),
-    user: dict = Depends(current_user),
+    user: dict = Depends(require_any_perm("finance.tax.manage", "finance.report.profit_loss", "system.settings.manage")),
 ):
     """Export PPh21 Monthly SPT mass CSV from payroll cycles.
     Format: DJP e-SPT PPh 21 Masa (simplified 1721-I equivalent).
@@ -213,7 +213,7 @@ async def export_pph21_spt(
 @router.get("/pph21/summary")
 async def pph21_summary(
     period: str = Query(..., description="YYYY-MM"),
-    user: dict = Depends(current_user),
+    user: dict = Depends(require_any_perm("finance.tax.manage", "finance.report.profit_loss", "system.settings.manage")),
 ):
     """PPh21 monthly summary from payroll cycles for the given period."""
     from core.db import get_db

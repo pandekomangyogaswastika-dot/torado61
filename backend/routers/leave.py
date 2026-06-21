@@ -2,12 +2,34 @@
 from typing import Optional
 from fastapi import APIRouter, Body, Depends, Query
 
-from core.exceptions import ok_envelope, ValidationError
-from core.security import current_user, require_perm
+from core.exceptions import ForbiddenError, NotFoundError, ok_envelope, ValidationError
+from core.security import current_user, get_user_permissions, require_perm
 from models.leave_request import LEAVE_TYPES
 from services import approval_service, leave_service
 
 router = APIRouter(prefix="/api/hr/leaves", tags=["leave_requests"])
+
+# Permissions that allow viewing OTHER employees' leave data/PII. Anyone holding
+# one of these is an HR/manager actor; everyone else may only read their OWN data.
+_HR_LEAVE_VIEW_PERMS = ("hr.leave.approve", "hr.leave.read", "hr.employee.read")
+
+
+async def _assert_can_view_employee_leave(user: dict, employee_id: Optional[str]) -> None:
+    """IDOR guard: allow if the caller IS the employee, is super (*), or holds an
+    HR/manager leave-view permission. Otherwise raise 403.
+
+    Prevents any authenticated user from reading another employee's leave PII via
+    /summary/{employee_id} or GET /{leave_id}.
+    """
+    if employee_id and employee_id == user.get("id"):
+        return
+    perms = await get_user_permissions(user)
+    if "*" in perms or any(p in perms for p in _HR_LEAVE_VIEW_PERMS):
+        return
+    raise ForbiddenError(
+        "Tidak boleh mengakses data cuti karyawan lain",
+        code="LEAVE_OWNERSHIP_REQUIRED",
+    )
 
 
 @router.get("")
@@ -23,9 +45,8 @@ async def list_leaves(
     user: dict = Depends(current_user),
 ):
     # Non-HR users can only see their own leaves
-    from core.security import get_user_permissions
     perms = await get_user_permissions(user)
-    is_hr = "*" in perms or "hr.leave.approve" in perms or "hr.employee.read" in perms
+    is_hr = "*" in perms or any(p in perms for p in _HR_LEAVE_VIEW_PERMS)
     emp_id = employee_id if is_hr else user["id"]
     items, meta = await leave_service.list_leave_requests(
         employee_id=emp_id, outlet_id=outlet_id, status=status,
@@ -48,6 +69,7 @@ async def leave_types(_: dict = Depends(current_user)):
 
 @router.get("/summary/{employee_id}")
 async def leave_summary(employee_id: str, user: dict = Depends(current_user)):
+    await _assert_can_view_employee_leave(user, employee_id)
     return ok_envelope(await leave_service.get_leave_summary(employee_id))
 
 
@@ -55,8 +77,8 @@ async def leave_summary(employee_id: str, user: dict = Depends(current_user)):
 async def get_leave(leave_id: str, user: dict = Depends(current_user)):
     doc = await leave_service.get_leave_request(leave_id)
     if not doc:
-        from core.exceptions import NotFoundError
         raise NotFoundError("Leave request")
+    await _assert_can_view_employee_leave(user, doc.get("employee_id"))
     return ok_envelope(doc)
 
 
