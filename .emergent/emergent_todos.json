@@ -1,0 +1,34 @@
+[
+  {
+    "content": "Copy repo from torado61 source into /app (preserve .env + .git)",
+    "status": "completed"
+  },
+  {
+    "content": "Install backend (pip) + frontend (yarn) dependencies",
+    "status": "completed"
+  },
+  {
+    "content": "Run scripts/load_context.sh + read all Tier-0 docs",
+    "status": "completed"
+  },
+  {
+    "content": "Verify frontend compiles & serves (HTTP 200)",
+    "status": "completed"
+  },
+  {
+    "content": "Seed database via scripts/seed_reset.sh (20/20 steps)",
+    "status": "completed"
+  },
+  {
+    "content": "Run integrity/health gates (integrity 21/21, health OK, intent 25/25 + 21/21)",
+    "status": "completed"
+  },
+  {
+    "content": "Recreate missing memory/test_credentials.md",
+    "status": "completed"
+  },
+  {
+    "content": "Verify login + app render, update memory (GROUND_TRUTH PART M)",
+    "status": "completed"
+  }
+]
