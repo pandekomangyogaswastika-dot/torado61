@@ -285,3 +285,13 @@ Gates: Integrity 21/21 PASS; Health 25/25 PASS.
   - `/executive/brand/:brandId` (BrandDrilldown) → tour baru `executive-brand-drilldown` (4 step).
 - Gate hijau: audit_tours(_v2) 0 missing/drift (429 target), ux_audit --strict 0/0, audit_all --strict OK.
 - Detail lengkap di `memory/GROUND_TRUTH_2026-06-17.md` PART N.
+
+---
+
+## Update 2026-06-21 (lanjutan) — Audit Forensik Pra-Produksi
+- 8 fase audit menyeluruh (bukan hanya tour): SSOT gates, pytest 233, semua audit script, e2e smoke,
+  RBAC (matrix 25/25 + outlet scope), data-management/restore, frontend E2E (testing agent), deployment.
+- FIX: (1) CRITICAL RBAC portal-route leak → per-route Gate di AdminPortal.jsx; (2) rate limit 120→1000;
+  (3) 2 script salah-DB (RC-1); (4) 2 deploy blocker (.gitignore .env, loyalty API fallback).
+- Status akhir: SEMUA GATE HIJAU, deployment_agent PASS → SIAP DEPLOY PRODUCTION.
+- Detail: memory/GROUND_TRUTH_2026-06-17.md PART O.

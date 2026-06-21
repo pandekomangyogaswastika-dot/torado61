@@ -437,3 +437,53 @@ File disentuh: `contexts/tour/tours/executive.js` (+3 tour), `tours/registry.js`
 
 > Catatan: kelas bug ini (route render komponen berbeda dari target tour) hanya ketahuan via clickthrough
 > browser, bukan audit statis. Jika ke depan landing/route diganti (spt Sprint E16), cek ulang tour map-nya.
+
+---
+
+## PART O — AUDIT FORENSIK PRA-PRODUKSI (2026-06-21, multi-metode menyeluruh)
+
+User minta forensik lengkap sebelum deploy production ("0 bug, 0 mistake", semua fitur — RBAC, restore, dll,
+bukan hanya tour). Dijalankan 8 fase + banyak metode. Hasil: **siap deploy** setelah 4 fix.
+
+### Gate & audit yang dijalankan (semua HIJAU di akhir):
+- SSOT: verify_data_integrity 21/21 · health_check SISTEM SEHAT · intent_audit_5portals 25/25 ·
+  intent_audit_remaining 21/21 · verify_contract OK (0 koleksi berbahaya).
+- pytest backend: **233 passed, 11 skipped**.
+- audit lain: audit_parity --strict OK (0 orphan module) · audit_ui_ia --strict OK · audit_routes OK ·
+  find_dead_services 84/84 used (0 dead) · audit_endpoint_sweep 353 GET route **0 5xx** · audit_detail_sweep ·
+  audit_data_integrity "NO ISSUES" · ux_audit --strict 0/0 (381 file) · audit_tours(_v2) 0 missing/drift ·
+  e2e_smoke "0 5xx, 16/16, aman deploy".
+- RBAC forensik: matrix izin **25/25 ALL ENFORCED** + outlet read/write-scope (POST sales outlet lain → 403).
+- Data-management/RESTORE: export/import(merge idempotent)/preview/collections — SUPER_ADMIN-only, FE↔BE OK.
+- deployment_agent: **PASS** (no blockers) setelah fix.
+
+### 🔴 BUG DITEMUKAN & DIPERBAIKI:
+1. **CRITICAL — RBAC portal-route leak (FE).** `RequirePortal permPrefix="admin"` pakai prefix match naif,
+   jadi OUTLET_MANAGER (punya `admin.loyalty.*`) bisa buka shell Admin & URL langsung ke `/admin/users`,
+   `/admin/settings`, dll (BE tetap 403 datanya, tapi shell ter-render). **Fix:** `AdminPortal.jsx` —
+   tiap sub-route sensitif dibungkus `<Gate need="admin.user|business_rules|master_data|audit_log|
+   system_settings|cms">` → redirect `/no-access` bila tak punya izin; route `loyalty/*` di-gate
+   `admin.loyalty` (OUTLET_MANAGER tetap bisa). Diverifikasi browser: outlet mgr 6/6 route diblok +
+   2/2 loyalty OK; finance diblok; SUPER_ADMIN 5/5 OK. Testing agent iter_7: 100%.
+2. **HIGH — Rate limit 429 saat navigasi normal.** `server.py` set bucket `api`=120/60s/user (env default),
+   terlalu ketat utk SPA dashboard (KPI+chart+polling). **Fix:** default dinaikkan `api` 120→**1000**,
+   `login` 10→30, `ai` 20→30 (semua tetap override via env). Verifikasi header x-ratelimit-limit=1000;
+   testing agent: 0 error 429 saat navigasi cepat 10 halaman.
+3. **MED — Script audit salah DB (RC-1).** `scripts/audit_collection_drift.py` & `scripts/inspect_docs.py`
+   hardcode `["aurora_fnb"]` (DB tak ada) → semua koleksi tampak "MISSING" (false positive). **Fix:** baca
+   `DB_NAME` dari `backend/.env` (default test_database). Setelah fix, hanya koleksi PART D (fitur 200-empty
+   by design) yang flagged — bukan koleksi inti.
+4. **DEPLOY — 2 blocker.** `.gitignore` meng-ignore `.env*` (dihapus agar pipeline deploy dapat file env);
+   `contexts/LoyaltyAuthContext.js` `REACT_APP_BACKEND_URL || ""` → hapus fallback. deployment_agent → PASS.
+
+### Bukan-bug (diverifikasi, didokumentasikan agar tak salah-alarm lagi):
+- audit_detail_sweep 3×404 (GR/JE/employee detail) = false-positive: JE detail ADA di path kanonik
+  `/api/finance/journals/{id}` (sweep pakai alias `/journal-entries/{id}`); GR/EMP tak punya endpoint
+  detail by design (FE 0 panggilan, list bawa full data). 
+- `procurement.po.read`/`gr.read` tak ada di katalog izin — akses modul PO/GR di-gate `.create` (semua role
+  yang butuh sudah punya). Konsisten, bukan trap. Asimetri penamaan vs `pr.read` = quirk desain (non-blok).
+- PRForm validasi JALAN via `toast.error("Outlet wajib")` + return (testing agent lewatkan toast transient).
+
+> File disentuh: server.py (rate limit), AdminPortal.jsx (route guards), LoyaltyAuthContext.js, .gitignore,
+> scripts/audit_collection_drift.py, scripts/inspect_docs.py, + scripts/rbac_forensic_test.py (baru, alat uji).
+> Pasca semua fix: pytest 233, integrity 21/21, intent 25/25+21/21, tours 0-missing, RBAC 25/25, deploy PASS.

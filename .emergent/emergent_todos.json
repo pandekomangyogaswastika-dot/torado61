@@ -24,19 +24,15 @@
     "status": "completed"
   },
   {
-    "content": "Phase 7: Frontend E2E (testing agent) — FOUND + FIXED: (a) CRITICAL RBAC portal-route leak (per-route guards added in AdminPortal), (b) rate-limit 120→1000/min. Both verified in browser. Gates re-passed",
+    "content": "Phase 7: Frontend E2E — FIXED critical RBAC portal-route leak + rate-limit 120→1000. Re-verified (testing agent iter_7: 100%)",
     "status": "completed"
   },
   {
-    "content": "Phase 7b: Re-run testing agent to confirm RBAC fix + cover tours/PR-form/reports",
-    "status": "in_progress"
+    "content": "Phase 8: Deployment readiness — deployment_agent PASS (fixed .gitignore .env + loyalty API fallback)",
+    "status": "completed"
   },
   {
-    "content": "Phase 8: Deployment readiness audit (deployment_agent)",
-    "status": "pending"
-  },
-  {
-    "content": "Phase 9: Update memory (GROUND_TRUTH PART O) + final summary",
-    "status": "pending"
+    "content": "Phase 9: Memory updated (GROUND_TRUTH PART O + plan.md) + final summary",
+    "status": "completed"
   }
 ]
