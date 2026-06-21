@@ -1,34 +1,30 @@
 [
   {
-    "content": "Copy repo from torado61 source into /app (preserve .env + .git)",
+    "content": "Verify last commit + read GROUND_TRUTH PART L (tour & guide update)",
     "status": "completed"
   },
   {
-    "content": "Install backend (pip) + frontend (yarn) dependencies",
+    "content": "Validate tour static audits (audit_tours.py + audit_tours_v2.py) — 0 missing/drift",
     "status": "completed"
   },
   {
-    "content": "Run scripts/load_context.sh + read all Tier-0 docs",
+    "content": "Browser-validate tour flows end-to-end via testing agent (10/11 pass)",
     "status": "completed"
   },
   {
-    "content": "Verify frontend compiles & serves (HTTP 200)",
+    "content": "Fix bug: /executive renders OwnerHome but executive-home tour targeted ExecutiveHome testids → created executive-owner-home tour",
     "status": "completed"
   },
   {
-    "content": "Seed database via scripts/seed_reset.sh (20/20 steps)",
+    "content": "Fix latent drift: /executive/outlet/:outletId + /executive/brand/:brandId tours → created drilldown tours",
     "status": "completed"
   },
   {
-    "content": "Run integrity/health gates (integrity 21/21, health OK, intent 25/25 + 21/21)",
+    "content": "Re-validate all 3 fixed tours in browser (owner-home 5 steps, outlet/brand drilldown 4 steps)",
     "status": "completed"
   },
   {
-    "content": "Recreate missing memory/test_credentials.md",
-    "status": "completed"
-  },
-  {
-    "content": "Verify login + app render, update memory (GROUND_TRUTH PART M)",
+    "content": "Run final gates (ux_audit, audit_all, tour audits) + update memory (GROUND_TRUTH PART N + plan.md)",
     "status": "completed"
   }
 ]

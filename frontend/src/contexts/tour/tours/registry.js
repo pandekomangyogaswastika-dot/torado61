@@ -111,6 +111,9 @@ import {
 } from './inventory';
 import {
   executiveHomeTour,
+  executiveOwnerHomeTour,
+  executiveOutletDrilldownTour,
+  executiveBrandDrilldownTour,
   executiveAIQATour,
   executiveAnomalyTour,
   executiveBrandMixTour,
@@ -263,6 +266,9 @@ export const tourRegistry = {
 
   // ==== Executive ====
   "executive-home": executiveHomeTour,
+  "executive-owner-home": executiveOwnerHomeTour,
+  "executive-outlet-drilldown": executiveOutletDrilldownTour,
+  "executive-brand-drilldown": executiveBrandDrilldownTour,
   "executive-ai-qa": executiveAIQATour,
   "executive-anomaly": executiveAnomalyTour,
   "executive-brand-mix": executiveBrandMixTour,
@@ -423,6 +429,9 @@ export const TOUR_VERSIONS = {
 
   // Executive
   "executive-home": 1,
+  "executive-owner-home": 1,
+  "executive-outlet-drilldown": 1,
+  "executive-brand-drilldown": 1,
   "executive-ai-qa": 1,
   "executive-anomaly": 1,
   "executive-brand-mix": 1,

@@ -48,6 +48,51 @@ const executiveHomeTour = {
   ],
 };
 
+// ─── Executive Owner Home (landing /executive — Sprint E16 owner-focused) ──
+// NOTE: /executive (index) renders portals/executive/OwnerHome/index.jsx, which
+// uses owner-* test ids. The ExecutiveHome (executive-header / exec-filterbar)
+// now lives at /executive/analytics and keeps the `executive-home` tour.
+const executiveOwnerHomeTour = {
+  name: "Dashboard Eksekutif",
+  description: "Ringkasan harian owner/GM: KPI, anomali, approvals, akses cepat.",
+  steps: [
+    {
+      target: "[data-testid='owner-home']",
+      title: "Dashboard Eksekutif",
+      content: "**Ringkasan harian owner & GM** dalam satu layar: revenue, AP exposure, anomali, dan approval tertunda. Mulai hari dari sini.",
+      placement: "center",
+      disableBeacon: true,
+      variant: "hero",
+    },
+    {
+      target: "[data-testid='owner-kpi-row']",
+      title: "KPI Utama",
+      content: "**Revenue Hari Ini / Minggu / Bulan**, **AP Exposure**, **Anomali Aktif**, dan **Pending Approval**. Klik tiap kartu untuk drill-down ke sumbernya.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-testid='owner-home-full-analytics']",
+      title: "Full Analytics",
+      content: "Buka **Executive Dashboard** lengkap: filter periode + brand/outlet multi-select, profit walk, brand mix, dan trend.",
+      placement: "bottom",
+      variant: "tip",
+    },
+    {
+      target: "[data-testid='owner-shortcuts']",
+      title: "Akses Cepat",
+      content: "Pintasan ke modul yang paling sering dipakai eksekutif — Analytics, Anomali, Approvals, Finance, Procurement, Inventory, dan lainnya.",
+      placement: "top",
+    },
+    {
+      target: "[data-testid='owner-home-refresh']",
+      title: "Segarkan Data",
+      content: "Klik **Refresh** untuk memuat angka terbaru tanpa reload halaman penuh.",
+      placement: "left",
+      variant: "tip",
+    },
+  ],
+};
+
 // ─── Executive AI Q&A ─────────────────────────────────────────────────
 const executiveAIQATour = {
   name: "Executive AI Q&A",
@@ -397,8 +442,81 @@ const executiveBudgetIncreaseTour = {
   ],
 };
 
+// ─── Outlet Drilldown (/executive/outlet/:outletId) ──────────────────
+const executiveOutletDrilldownTour = {
+  name: "Detail Outlet",
+  description: "KPI, P&L, inventory, dan staff untuk satu outlet.",
+  steps: [
+    {
+      target: "[data-testid='outlet-drilldown-page']",
+      title: "Detail Outlet",
+      content: "Analisis mendalam **satu outlet**: performa harian, P&L, inventory, dan staff. Buka dari kartu outlet di dashboard.",
+      placement: "center",
+      disableBeacon: true,
+      variant: "hero",
+    },
+    {
+      target: "[data-testid='outlet-kpi-strip']",
+      title: "KPI Outlet",
+      content: "Ringkasan **revenue, GP%, net, dan transaksi** outlet ini untuk periode aktif.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-testid='tab-daily']",
+      title: "Tab Analisis",
+      content: "Pindah antar tab: **Daily Ops**, **P&L**, **Inventory**, dan **Staff** untuk melihat detail per area.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-testid='outlet-back']",
+      title: "Kembali ke Dashboard",
+      content: "Klik untuk kembali ke Executive Dashboard dan pilih outlet/brand lain.",
+      placement: "right",
+      variant: "tip",
+    },
+  ],
+};
+
+// ─── Brand Drilldown (/executive/brand/:brandId) ─────────────────────
+const executiveBrandDrilldownTour = {
+  name: "Detail Brand",
+  description: "KPI brand, struktur biaya, outlet, dan trend.",
+  steps: [
+    {
+      target: "[data-testid='brand-drilldown-page']",
+      title: "Detail Brand",
+      content: "Analisis mendalam **satu brand**: KPI, outlet di bawahnya, struktur biaya, dan trend.",
+      placement: "center",
+      disableBeacon: true,
+      variant: "hero",
+    },
+    {
+      target: "[data-testid='brand-drilldown-kpi']",
+      title: "KPI Brand",
+      content: "**Revenue MTD, GP%, Net, dan jumlah outlet aktif** untuk brand ini.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-testid='tab-outlets']",
+      title: "Tab Analisis",
+      content: "Pindah antar tab: **Outlets**, **Cost Structure**, dan **Trends** untuk detail per area.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-testid='brand-back']",
+      title: "Kembali ke Dashboard",
+      content: "Klik untuk kembali ke Executive Dashboard dan pilih brand/outlet lain.",
+      placement: "right",
+      variant: "tip",
+    },
+  ],
+};
+
 export {
   executiveHomeTour,
+  executiveOwnerHomeTour,
+  executiveOutletDrilldownTour,
+  executiveBrandDrilldownTour,
   executiveAIQATour,
   executiveAnomalyTour,
   executiveBrandMixTour,

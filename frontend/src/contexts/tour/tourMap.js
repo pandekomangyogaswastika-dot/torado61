@@ -173,11 +173,11 @@ const pathToTours = {
   "/inventory/valuation": ["inventory-valuation"],
 
   // ==== Executive portal ====
-  "/executive": ["executive-home"],
+  "/executive": ["executive-owner-home"],
   "/executive/approvals": ["my-approvals"],
   "/executive/brand": ["executive-brand-mix"],
-  "/executive/brand/:brandId": ["executive-brand-mix"],
-  "/executive/outlet/:outletId": ["executive-home"],
+  "/executive/brand/:brandId": ["executive-brand-drilldown"],
+  "/executive/outlet/:outletId": ["executive-outlet-drilldown"],
   "/executive/analytics": ["executive-home"],
   "/executive/ai-qa": ["executive-ai-qa"],
   "/executive/ai": ["executive-ai-qa"],
@@ -341,6 +341,9 @@ const tourMetadata = {
 
   // ==== Executive ====
   "executive-home": { title: "Executive Dashboard", description: "KPI strip + drilldown + insights", icon: "📈" },
+  "executive-owner-home": { title: "Dashboard Eksekutif", description: "Ringkasan owner: KPI, anomali, approvals, akses cepat", icon: "👑" },
+  "executive-outlet-drilldown": { title: "Detail Outlet", description: "KPI, P&L, inventory & staff per outlet", icon: "🏪" },
+  "executive-brand-drilldown": { title: "Detail Brand", description: "KPI, cost structure, outlet & trend per brand", icon: "🏷️" },
   "executive-ai-qa": { title: "AI Q&A Assistant", description: "Tanya AI tentang performance bisnis", icon: "🤖" },
   "executive-anomaly": { title: "Anomaly Detection", description: "AI mendeteksi pola anomali di data bisnis dan keuangan", icon: "🚨" },
   "executive-brand-mix": { title: "Brand Mix Overview", description: "Analisis kontribusi dan performa masing-masing brand", icon: "📊" },

@@ -397,3 +397,43 @@ terpasang, DB di-seed penuh. Mengikuti protokol `scripts/load_context.sh` (baca 
 
 > Catatan jujur (tetap berlaku): belum exhaustive UI clickthrough authenticated untuk semua ~180 fitur;
 > verifikasi render authenticated dilakukan via gate (data+invariant) + compile + render /login & public.
+
+---
+
+## PART N — TOUR & GUIDE VALIDASI + FIX ROUTE-DRIFT EKSEKUTIF (2026-06-21, lanjutan PART L)
+
+Tindak lanjut PART L (update tour guide). User minta: **validasi tour & guide dulu, lalu lanjutkan**.
+
+### Validasi (code-first + browser):
+- Static: `audit_tours.py` → 0 missing target / 0 route-drift · `audit_tours_v2.py` → semua target resolve, 0 MISSING.
+- Browser (testing agent, iteration_5): **10/11 PASS**. 8/8 NEW hub tour PASS (anchor benar), search PASS,
+  help-button hidden di /login PASS. **1 FAIL ditemukan** → diperbaiki di bawah.
+
+### 🔴 BUG (route→komponen→testid drift) — FIXED & VERIFIED:
+Kelas bug: route di-map ke tour yang target testid-nya ada di **komponen lain** (audit statis tak bisa
+menangkap karena literal testid tetap "ada" di codebase, tapi tidak ter-render di route tsb).
+1. **`/executive` (index) render `OwnerHome/index.jsx`** (testid `owner-home`/`owner-kpi-row`/`owner-shortcuts`)
+   — Sprint E16 mengganti landing dari ExecutiveHome → OwnerHome, TAPI tour `executive-home` masih target
+   `executive-header`/`exec-filterbar` (punya ExecutiveHome, kini di `/executive/analytics`). Akibat: Joyride
+   spotlight default ke pojok 0,0, tooltip tak ter-anchor. **Fix:** tour baru **`executive-owner-home`**
+   (5 step: owner-home → owner-kpi-row → owner-home-full-analytics → owner-shortcuts → owner-home-refresh),
+   di-map ke `/executive`. `executive-home` tetap untuk `/executive/analytics` (ExecutiveHome) — benar.
+2. **`/executive/outlet/:outletId` render `OutletDrilldown`** (latent, deep-link) — dulu map ke `executive-home`
+   (salah). **Fix:** tour baru **`executive-outlet-drilldown`** (4 step: outlet-drilldown-page → outlet-kpi-strip
+   → tab-daily → outlet-back).
+3. **`/executive/brand/:brandId` render `BrandDrilldown`** (latent) — dulu map ke `executive-brand-mix` (salah;
+   target `brand-mix-overview` hanya ada di BrandMixOverview @ `/executive/brand`). **Fix:** tour baru
+   **`executive-brand-drilldown`** (4 step) + ditambah testid `brand-drilldown-page` & `brand-drilldown-kpi`
+   ke `BrandDrilldown.jsx` (theme/fungsi tak berubah).
+
+File disentuh: `contexts/tour/tours/executive.js` (+3 tour), `tours/registry.js` (registry+versions),
+`tourMap.js` (3 remap + 3 metadata), `portals/executive/BrandDrilldown.jsx` (+2 data-testid).
+
+### Verifikasi final (semua hijau):
+- `audit_tours_v2`: 429 target resolve, 0 MISSING · `audit_tours`: 0 missing / 0 drift.
+- Browser: ketiga tour baru jalan end-to-end — `executive-owner-home` 5 step (semua anchor, step-5 → tombol
+  Refresh), `executive-outlet-drilldown` & `executive-brand-drilldown` 4 step (welcome + LANGKAH 1/4 render).
+- `ux_audit --strict` 0 ERROR/0 WARN (381 file) · `audit_all --strict` OK · webpack compiled successfully.
+
+> Catatan: kelas bug ini (route render komponen berbeda dari target tour) hanya ketahuan via clickthrough
+> browser, bukan audit statis. Jika ke depan landing/route diganti (spt Sprint E16), cek ulang tour map-nya.

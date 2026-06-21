@@ -273,3 +273,15 @@ Gates: Integrity 21/21 PASS; Health 25/25 PASS.
 
 **Catatan scope tersisa (opsional, belum dikerjakan):**
 - **AI/LLM integration:** belum dikonfigurasi. Jika dibutuhkan, implementasi harus memakai Claude native (Anthropic) tanpa Emergent; untuk sekarang **di-skip**.
+
+---
+
+## Update 2026-06-21 — Tour & Guide validasi + fix route-drift eksekutif
+- Restorasi env baru (torado61 → /app): seed 20/20, integrity 21/21, health OK, intent 25/25 + 21/21.
+- **Tour & Guide divalidasi** (audit statis + browser/testing agent): 8/8 hub tour PASS, search PASS.
+- **Fixed 3 route-drift tour** di portal Executive (route render komponen berbeda dari target tour):
+  - `/executive` (OwnerHome) → tour baru `executive-owner-home` (5 step).
+  - `/executive/outlet/:outletId` (OutletDrilldown) → tour baru `executive-outlet-drilldown` (4 step).
+  - `/executive/brand/:brandId` (BrandDrilldown) → tour baru `executive-brand-drilldown` (4 step).
+- Gate hijau: audit_tours(_v2) 0 missing/drift (429 target), ux_audit --strict 0/0, audit_all --strict OK.
+- Detail lengkap di `memory/GROUND_TRUTH_2026-06-17.md` PART N.

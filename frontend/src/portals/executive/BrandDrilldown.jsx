@@ -64,7 +64,7 @@ export default function BrandDrilldown() {
   const cs = data.cost_structure;
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto" data-testid="brand-drilldown-page">
       <div className="mb-5 flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate("/executive")} className="glass-input rounded-full gap-1" data-testid="brand-back">
@@ -88,7 +88,7 @@ export default function BrandDrilldown() {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5" data-testid="brand-drilldown-kpi">
         <KpiCard label="Revenue MTD" value={fmtRp(k.revenue_mtd)} icon={Receipt} color="aurora-1"
           hint={`${k.trx} trx`} />
         <KpiCard label="GP %" value={`${k.gp_pct?.toFixed?.(1) ?? "0"}%`}
